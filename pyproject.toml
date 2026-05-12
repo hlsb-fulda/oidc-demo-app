@@ -17,6 +17,7 @@ dependencies = [
     "starsessions>=2.1.0",
     "starlette>=0.47.2",
     "authlib>=1.6.2",
+    "joserfc>=1.2.2",
     "httpx>=0.28.1",
     "itsdangerous>=2.2.0",
     "uvicorn[standard]>=0.29.0",

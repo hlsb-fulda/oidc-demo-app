@@ -2,7 +2,7 @@
 , ...
 }:
 
-python3.pkgs.buildPythonApplication {
+python3.pkgs.buildPythonApplication (finalAttrs: {
   name = "oidc-demo-app";
 
   src = ./.;
@@ -17,6 +17,7 @@ python3.pkgs.buildPythonApplication {
     starlette
     starsessions
     authlib
+    joserfc
     httpx
     itsdangerous
     uvicorn
@@ -29,4 +30,9 @@ python3.pkgs.buildPythonApplication {
 
   # Has no tests
   doCheck = false;
-}
+
+  passthru = {
+    python = python3;
+    pythonPath = python3.pkgs.makePythonPath finalAttrs.passthru.dependencies;
+  };
+})
