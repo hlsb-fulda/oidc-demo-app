@@ -1,0 +1,64 @@
+<div class="mb-4">
+    <h6 class="fw-semibold text-muted text-uppercase">
+        JWKS URI
+    </h6>
+
+    <span class="endpoint-pill">
+        <i class="bi bi-link-45deg"></i>
+        {{ discovery.jwks_uri }}
+    </span>
+</div>
+
+<div class="mb-4">
+    <h6 class="fw-semibold text-muted text-uppercase">
+        Keys
+    </h6>
+
+    <div class="accordion" id="keysAccordion">
+        {% for key in jwks_doc["keys"] %}
+            <div class="accordion-item">
+
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed"
+                            style="font-size:.85rem" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#key-{{ loop.index }}">
+                        {{ key["kid"] }}
+
+                        <span class="badge text-bg-secondary fw-normal ms-2">{{ key["use"] }}</span>
+                    </button>
+                </h2>
+
+                <div id="key-{{ loop.index }}" class="accordion-collapse collapse"
+                     data-bs-parent="#keysAccordion">
+                    <dl class="accordion-body row">
+                        <dt class="col-sm-3">
+                            Usage
+                        </dt>
+                        <dd class="col-sm-9 fw-light small font-monospace">
+                            {{ key["use"] }}
+                        </dd>
+
+                        <dt class="col-sm-3">
+                            Key Type
+                        </dt>
+                        <dd class="col-sm-9 fw-light small font-monospace">
+                            {{ key["kty"] }}
+                        </dd>
+
+                        <dt class="col-sm-3">
+                            Algorithm
+                        </dt>
+                        <dd class="col-sm-9 fw-light small font-monospace">
+                            {{ key["alg"] }}
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+{{ raw_section("JWKS document",
+               jwks_doc | tojson,
+               "jwks-json",
+               "json-block") }}

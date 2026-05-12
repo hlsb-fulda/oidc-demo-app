@@ -1,0 +1,21 @@
+{% extends "base.html.j2" %}
+
+{% block title %}Authentication Error{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-center pt-5">
+        <div style="max-width:480px;width:100%">
+            <div class="card section-card text-center p-5">
+                <div class="mb-3" style="font-size:3rem;color:#ef4444">
+                    <i class="bi bi-x-circle-fill"></i>
+                </div>
+                <h2 class="h4 fw-bold mb-2">Authentication Error</h2>
+                <p class="text-muted mb-4">{{ message }}</p>
+                <a href="/login" class="btn btn-primary">
+                    <i class="bi bi-arrow-left me-1"></i>
+                    Try again
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

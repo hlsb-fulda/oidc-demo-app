@@ -1,0 +1,80 @@
+{% macro endpoint_row(label, url) %}
+    {% if url %}
+        <tr>
+            <td class="text-muted small" style="width:220px; white-space:nowrap">{{ label }}</td>
+            <td>
+                <span class="endpoint-pill">
+                    <i class="bi bi-link-45deg"></i>
+                    {{ url }}
+                </span>
+            </td>
+        </tr>
+    {% endif %}
+{% endmacro %}
+
+
+
+
+<div class="mb-4">
+    <h6 class="fw-semibold text-muted text-uppercase">
+        Discovery Endpoints
+    </h6>
+
+    <div class="table-responsive mb-4">
+        <table class="table table-sm align-middle">
+            <tbody>
+            {{ endpoint_row('Issuer', discovery.issuer) }}
+            {{ endpoint_row('Authorization', discovery.authorization_endpoint) }}
+            {{ endpoint_row('Token', discovery.token_endpoint) }}
+            {{ endpoint_row('UserInfo', discovery.userinfo_endpoint) }}
+            {{ endpoint_row('JWKS URI', discovery.jwks_uri) }}
+            {{ endpoint_row('Introspection', discovery.introspection_endpoint) }}
+            {{ endpoint_row('End Session', discovery.end_session_endpoint) }}
+            {{ endpoint_row('Revocation', discovery.revocation_endpoint) }}
+            {{ endpoint_row('Registration', discovery.registration_endpoint) }}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="mb-4">
+    <h6 class="fw-semibold text-muted text-uppercase">
+        Supported Features
+    </h6>
+
+    <div class="accordion" id="featuresAccordion">
+        {% for label, values in [
+            ('Grant Types', discovery.grant_types_supported),
+            ('Response Types', discovery.response_types_supported),
+            ('Scopes', discovery.scopes_supported),
+            ('ID Token Signing Algs', discovery.id_token_signing_alg_values_supported),
+            ('Token Auth Methods', discovery.token_endpoint_auth_methods_supported),
+            ('Claims', discovery.claims_supported),
+        ] %}
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed"
+                            style="font-size:.85rem" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#feat-{{ loop.index }}">
+                        {{ label }}
+
+                        <span class="badge text-bg-secondary fw-normal ms-2">{{ values | length }}</span>
+                    </button>
+                </h2>
+                <div id="feat-{{ loop.index }}" class="accordion-collapse collapse"
+                     data-bs-parent="#featuresAccordion">
+                    <ul class="list-group list-group-flush">
+                            {% for v in values %}
+                                <li class="list-group-item fw-light small font-monospace">{{ v }}</li>
+                            {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+{{ raw_section("Discovery Document",
+               discovery | tojson,
+               "discovery-json",
+               "json-block") }}

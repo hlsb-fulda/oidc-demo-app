@@ -1,0 +1,9 @@
+<div class="alert alert-warning d-flex align-items-start gap-2 mb-3" role="alert">
+    <i class="bi bi-shield-exclamation flex-shrink-0 mt-1"></i>
+    <div>
+        Refresh tokens are long-lived credentials. In production, store them securely
+        and never expose them to the browser.
+    </div>
+</div>
+
+{{ raw_section("Raw Token", token.refresh_token, "raw-rt", "token-block") }}

@@ -1,0 +1,26 @@
+{% if userinfo is none %}
+    <div class="alert alert-secondary d-flex align-items-center gap-2" role="alert">
+        <i class="bi bi-dash-circle flex-shrink-0"></i>
+        <div>
+            The <code>userinfo_endpoint</code> is not advertised by this provider's discovery document.
+        </div>
+    </div>
+{% elif userinfo._error is defined %}
+    <div class="alert alert-danger d-flex align-items-center gap-2" role="alert">
+        <i class="bi bi-x-circle-fill flex-shrink-0"></i>
+        <div>UserInfo request failed: {{ userinfo._error }}</div>
+    </div>
+{% else %}
+    <div class="mb-4">
+        <h6 class="fw-semibold text-muted text-uppercase">
+            Claims
+        </h6>
+
+        {{ claims_table(userinfo) }}
+    </div>
+
+    {{ raw_section("UserInfo Response",
+                   userinfo | tojson,
+                   "raw-userinfo",
+                   "json-block") }}
+{% endif %}

@@ -1,0 +1,71 @@
+<h6 class="fw-semibold text-muted text-uppercase">
+    Identity Summary
+</h6>
+
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-lg-4">
+        <div class="p-3 bg-light rounded-3">
+            <div class="text-muted small mb-1">Subject (sub)</div>
+            <div class="fw-semibold font-monospace"
+                 style="font-size:.8rem;word-break:break-all">{{ user.sub }}</div>
+        </div>
+    </div>
+
+    {% if user.preferred_username %}
+        <div class="col-sm-6 col-lg-4">
+            <div class="p-3 bg-light rounded-3">
+                <div class="text-muted small mb-1">Preferred Username</div>
+                <div class="fw-semibold">{{ user.preferred_username }}</div>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if user.name %}
+        <div class="col-sm-6 col-lg-4">
+            <div class="p-3 bg-light rounded-3">
+                <div class="text-muted small mb-1">Display Name</div>
+                <div class="fw-semibold">{{ user.name }}</div>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if user.email %}
+        <div class="col-sm-6 col-lg-4">
+            <div class="p-3 bg-light rounded-3">
+                <div class="text-muted small mb-1">Email</div>
+                <div class="fw-semibold">{{ user.email }}</div>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if token.scope %}
+        <div class="col-sm-6 col-lg-4">
+            <div class="p-3 bg-light rounded-3">
+                <div class="text-muted small mb-1">Granted Scopes</div>
+                <div class="d-flex flex-wrap gap-1 mt-1">
+                    {% for s in token.scope.split(' ') %}
+                        <span class="badge text-bg-secondary fw-normal">{{ s }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if token.expires_in %}
+        <div class="col-sm-6 col-lg-4">
+            <div class="p-3 bg-light rounded-3">
+                <div class="text-muted small mb-1">Token Lifetime</div>
+                <div class="fw-semibold">{{ token.expires_in }}s</div>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="col-sm-6 col-lg-4">
+        <div class="p-3 bg-light rounded-3">
+            <div class="text-muted small mb-1">Provider</div>
+            <div class="fw-semibold d-flex align-items-center gap-1">
+                <i class="bi {{ provider.display_icon }}"></i>{{ provider.display_name }}
+            </div>
+        </div>
+    </div>
+</div>

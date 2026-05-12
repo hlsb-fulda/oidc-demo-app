@@ -1,0 +1,209 @@
+{% macro claims_table(claims) %}
+    {% if claims %}
+        <div class="table-responsive">
+            <table class="table table-sm table-hover align-middle mb-0">
+                <tbody>
+                {% for key, val in claims.items() | sort %}
+                    <tr>
+                        <td class="claim-key">
+                            {{ key }}
+
+                        </td>
+                        <td class="claim-value">
+                            {% if key not in STANDARD_CLAIMS %}
+                                <span class="badge float-end text-bg-light border ms-1"
+                                      style="font-size:.65rem">custom</span>
+                            {% endif %}
+
+                            {% if key in TIMESTAMP_CLAIMS and val is number %}
+                                <span>{{ val | ts }}</span>
+                                <div class="claim-ts">unix: {{ val }}</div>
+                            {% elif val is iterable and val is not string %}
+                                {% if val is mapping %}
+                                    <pre class="json-block mb-0" style="max-height:160px">{{ val | tojson }}</pre>
+                                {% else %}
+                                    <div class="d-flex flex-wrap gap-1">
+                                        {% for item in val %}
+                                            <span class="badge text-bg-light border text-dark fw-normal font-monospace">{{ item }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            {% elif val is sameas true %}
+                                <span class="badge text-bg-success">true</span>
+                            {% elif val is sameas false %}
+                                <span class="badge text-bg-secondary">false</span>
+                            {% elif val is none %}
+                                <span class="text-muted fst-italic small">null</span>
+                            {% else %}
+                                <span class="font-monospace" style="font-size:.8rem">{{ val }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="text-muted small mb-0"><em>No claims available.</em></p>
+    {% endif %}
+{% endmacro %}
+
+{% macro raw_section(title, data, block_id, class) %}
+    <div class="mb-4">
+        {% if token %}
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <h6 class="fw-semibold text-muted text-uppercase">
+                    {{ title }}
+                </h6>
+
+                <button class="btn btn-sm btn-outline-secondary copy-btn"
+                        data-copy="#{{ block_id }}">
+                    <i class="bi bi-clipboard"></i> Copy
+                </button>
+            </div>
+
+            <pre class="{{ class }}" id="{{ block_id }}">{{ data }}</pre>
+        {% else %}
+            <p class="text-muted small"><em>Not available.</em></p>
+        {% endif %}
+    </div>
+{% endmacro %}
+
+
+
+
+
+{% extends "base.html.j2" %}
+
+{% block title %}Info{% endblock %}
+
+{% block content %}
+    <div class="hero-card p-4 mb-4">
+        <div class="d-flex align-items-center gap-3 flex-wrap">
+
+            <div class="hero-avatar">
+                {% if user.picture %}
+                    <img src="{{ user.picture }}" alt="">
+                {% else %}
+                    {{ (user.name or user.preferred_username or user.email or 'User')[0].upper() }}
+                {% endif %}
+            </div>
+
+            <div class="flex-grow-1 min-w-0">
+                <div class="fw-bold fs-5 mb-1">
+                    {{ user.name or user.preferred_username or user.email or user.sub }}
+                </div>
+                {% if user.email %}
+                    <div class="sub-text mb-1">
+                        <i class="bi bi-envelope me-1"></i>{{ user.email }}
+                    </div>
+                {% endif %}
+                <div class="sub-text d-flex align-items-center gap-2 flex-wrap">
+                    <span><i class="bi bi-fingerprint me-1"></i><code
+                            style="font-size:.78rem;color:rgba(255,255,255,.9)">{{ user.sub }}</code></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-card mb-4">
+
+        <div class="card-header">
+            <ul class="nav nav-pills gap-1 flex-nowrap overflow-auto" id="detailTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="tab-profile" data-bs-toggle="pill"
+                            data-bs-target="#pane-profile" type="button" role="tab">
+                        <i class="bi bi-person-badge me-1"></i>Profile
+                    </button>
+                </li>
+
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-id-token" data-bs-toggle="pill"
+                            data-bs-target="#pane-id-token" type="button" role="tab">
+                        <i class="bi bi-key me-1"></i>ID Token
+                    </button>
+                </li>
+
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-access-token" data-bs-toggle="pill"
+                            data-bs-target="#pane-access-token" type="button" role="tab">
+                        <i class="bi bi-key-fill me-1"></i>Access Token
+                    </button>
+                </li>
+
+                {% if token.refresh_token is none %}
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="tab-refresh-token" data-bs-toggle="pill"
+                                data-bs-target="#pane-refresh-token" type="button" role="tab">
+                            <i class="bi bi-arrow-repeat me-1"></i>Refresh Token
+                        </button>
+                    </li>
+                {% endif %}
+
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-userinfo" data-bs-toggle="pill"
+                            data-bs-target="#pane-userinfo" type="button" role="tab">
+                        <i class="bi bi-person-lines-fill me-1"></i>UserInfo
+                    </button>
+                </li>
+
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-introspection" data-bs-toggle="pill"
+                            data-bs-target="#pane-introspection" type="button" role="tab">
+                        <i class="bi bi-search me-1"></i>Introspection
+                    </button>
+                </li>
+
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-discovery" data-bs-toggle="pill"
+                            data-bs-target="#pane-discovery" type="button" role="tab">
+                        <i class="bi bi-compass me-1"></i>Discovery
+                    </button>
+                </li>
+
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-jwks" data-bs-toggle="pill"
+                            data-bs-target="#pane-jwks" type="button" role="tab">
+                        <i class="bi bi-database-lock me-1"></i>JWK Set
+                    </button>
+                </li>
+            </ul>
+        </div>
+
+        <div class="tab-content p-3 p-md-4" id="detailTabsContent">
+            <div class="tab-pane fade show active" id="pane-profile" role="tabpanel">
+                {% include "info/profile.html.j2" %}
+            </div>
+
+            <div class="tab-pane fade" id="pane-id-token" role="tabpanel">
+                {% include "info/id_token.html.j2" %}
+            </div>
+
+            <div class="tab-pane fade" id="pane-access-token" role="tabpanel">
+                {% include "info/access_token.html.j2" %}
+            </div>
+
+            {% if token.refresh_token is none %}
+                <div class="tab-pane fade" id="pane-referesh-token" role="tabpanel">
+                    {% include "info/refresh_token.html.j2" %}
+                </div>
+            {% endif %}
+
+            <div class="tab-pane fade" id="pane-userinfo" role="tabpanel">
+                {% include "info/userinfo.html.j2" %}
+            </div>
+
+            <div class="tab-pane fade" id="pane-introspection" role="tabpanel">
+                {% include "info/introspection.html.j2" %}
+            </div>
+
+            <div class="tab-pane fade" id="pane-discovery" role="tabpanel">
+                {% include "info/discovery.html.j2" %}
+            </div>
+
+            <div class="tab-pane fade" id="pane-jwks" role="tabpanel">
+                {% include "info/jwks.html.j2" %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

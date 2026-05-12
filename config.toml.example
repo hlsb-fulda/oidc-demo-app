@@ -1,0 +1,22 @@
+base_url = "http://localhost:8000"
+
+[providers.test]
+issuer = "https://login.example.internacl/realms/foo/"
+client_id = "oidc-demo-test"
+client_secret = ""
+
+display_name = "Test"
+display_icon = "bi-person-circle"
+
+scopes = ["openid", "profile", "email"]
+
+[providers.other]
+issuer = "https://login.idp.local/"
+client_id = "oidc-demo-other"
+client_secret = ""
+
+display_name = "Other"
+display_icon = "bi-person-workspace"
+
+scopes = ["openid", "profile", "email", "groups"]
+

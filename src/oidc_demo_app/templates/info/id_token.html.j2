@@ -1,0 +1,35 @@
+{% if id_token.header %}
+    <div class="mb-4">
+        <h6 class="fw-semibold text-muted text-uppercase">
+            Header
+        </h6>
+
+        <div class="table-responsive">
+            <table class="table table-sm table-hover align-middle mb-0">
+                <tbody>
+                {% for k, v in id_token.header.items() %}
+                    <tr>
+                        <td class="claim-key" style="width:100px">{{ k }}</td>
+                        <td class="claim-value font-monospace" style="font-size:.8rem">{{ v }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endif %}
+
+<div class="mb-4">
+    <h6 class="fw-semibold text-muted text-uppercase d-flex align-items-center gap-2">
+        Claims
+        <span class="badge text-bg-warning text-dark fw-normal ms-1">
+            <i class="bi bi-exclamation-triangle-fill me-1"></i>Displayed without signature verification
+        </span>
+    </h6>
+
+    {{ claims_table(id_token.payload) }}
+</div>
+
+{{ raw_section("Signature", id_token.signature, "id-token-sig", "token-block") }}
+
+{{ raw_section("Raw Token", token.id_token, "id-token-raw", "token-block") }}

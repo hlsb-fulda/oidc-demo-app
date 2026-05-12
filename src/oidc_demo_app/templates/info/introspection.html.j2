@@ -1,0 +1,36 @@
+{% if introspection is none %}
+    <div class="alert alert-secondary d-flex align-items-center gap-2" role="alert">
+        <i class="bi bi-dash-circle flex-shrink-0"></i>
+        <div>
+            The <code>introspection_endpoint</code> is not advertised by this provider's discovery document.
+        </div>
+    </div>
+
+{% elif introspection._error is defined %}
+    <div class="alert alert-danger d-flex align-items-center gap-2" role="alert">
+        <i class="bi bi-x-circle-fill flex-shrink-0"></i>
+        <div>Introspection request failed: {{ introspection._error }}</div>
+    </div>
+
+{% else %}
+    {% if introspection.active is defined %}
+        <div class="alert {% if introspection.active %}alert-success{% else %}alert-warning{% endif %} d-flex align-items-center gap-2 mb-3"
+             role="alert">
+            <i class="bi {% if introspection.active %}bi-check-circle-fill{% else %}bi-x-circle-fill{% endif %} flex-shrink-0"></i>
+            <div>
+                Token is <strong>{% if introspection.active %}active{% else %}inactive{% endif %}</strong>
+                according to the introspection endpoint.
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="mb-4">
+        <h6 class="fw-semibold text-muted text-uppercase">
+            Claims
+        </h6>
+
+        {{ claims_table(introspection) }}
+    </div>
+
+    {{ raw_section("Introspection Document", introspection | tojson, "introspection-raw", "json-block") }}
+{% endif %}
