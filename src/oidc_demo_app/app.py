@@ -8,8 +8,7 @@ from fastapi import FastAPI, HTTPException, Request
 from starlette.responses import HTMLResponse, RedirectResponse
 from starlette.staticfiles import StaticFiles
 from starlette.templating import Jinja2Templates
-from starlette_sessions.memory.backend import MemorySessionBackend
-from starlette_sessions.middleware import SessionMiddleware
+from starsessions import SessionMiddleware, InMemoryStore, SessionAutoloadMiddleware
 
 from oidc_demo_app.oidc import build_auth, unsafe_parse_token
 from oidc_demo_app.settings import settings
@@ -24,10 +23,9 @@ def create_app() -> FastAPI:
         title="OIDC demo resource server",
     )
 
-    app.add_middleware(
-        SessionMiddleware,
-        backend=MemorySessionBackend(),
-    )
+    app.add_middleware(SessionAutoloadMiddleware)
+    app.add_middleware(SessionMiddleware,
+                       store=InMemoryStore())
 
     templates = Jinja2Templates(directory=os.path.join(os.path.dirname(__file__), "templates"))
 
@@ -136,10 +134,10 @@ def create_app() -> FastAPI:
 
     @app.get("/login/{provider}/callback", response_class=HTMLResponse, name="login_callback")
     async def login_callback(
-        request: Request,
-        provider: str,
-        error: str | None = None,
-        error_description: str | None = None,
+            request: Request,
+            provider: str,
+            error: str | None = None,
+            error_description: str | None = None,
     ):
         if provider not in settings.providers:
             raise HTTPException(404, f"Unknown provider: {provider!r}")

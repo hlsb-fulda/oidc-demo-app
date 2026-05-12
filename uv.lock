@@ -425,7 +425,7 @@ dependencies = [
     { name = "pydantic-settings" },
     { name = "pyyaml" },
     { name = "starlette" },
-    { name = "starlette-sessions" },
+    { name = "starsessions" },
     { name = "uvicorn", extra = ["standard"] },
 ]
 
@@ -436,17 +436,17 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "authlib", specifier = ">=1.7.2" },
-    { name = "click", specifier = ">=8.3.3" },
+    { name = "authlib", specifier = ">=1.6.2" },
+    { name = "click", specifier = ">=8.2.1" },
     { name = "fastapi", specifier = ">=0.110.0" },
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "itsdangerous", specifier = ">=2.2.0" },
     { name = "jinja2", specifier = ">=3.1.4" },
-    { name = "pydantic", specifier = ">=2.13.4" },
-    { name = "pydantic-settings", specifier = ">=2.13.1" },
+    { name = "pydantic", specifier = ">=2.11.7" },
+    { name = "pydantic-settings", specifier = ">=2.10.1" },
     { name = "pyyaml", specifier = ">=6.0" },
-    { name = "starlette", specifier = ">=1.0.0" },
-    { name = "starlette-sessions", specifier = ">=0.3.0" },
+    { name = "starlette", specifier = ">=0.47.2" },
+    { name = "starsessions", specifier = ">=2.1.0" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.29.0" },
 ]
 
@@ -696,15 +696,16 @@ wheels = [
 ]
 
 [[package]]
-name = "starlette-sessions"
-version = "0.3.0"
+name = "starsessions"
+version = "2.2.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
+    { name = "itsdangerous" },
     { name = "starlette" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/36/c5/dd8c349a0ea99030918c5a29856905178691e3b7fdb55e0259161ed54b66/starlette_sessions-0.3.0.tar.gz", hash = "sha256:eb3700c7903b88154c867526f39da1408439c671311c9c371fed539f3e14986b", size = 8823, upload-time = "2024-11-01T14:51:34.666Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/86/a1/dd738cd47b7a1c681cae49c4f7c88cc953b2aca4de455c2aacda6652e7ce/starsessions-2.2.1.tar.gz", hash = "sha256:ce5e4448d9bf2c76222e56cd099ad92d22313e8a4def612e22b71a122cc11da0", size = 15048, upload-time = "2024-10-23T09:01:12.343Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/5c/0d/0e8861d52715e24d6af71eceea374ed86fc2c44c137c910001252db8d45d/starlette_sessions-0.3.0-py3-none-any.whl", hash = "sha256:03750f1c5d31f38996c4ff3678ff4866f948258197d258e34f6c327d9527144f", size = 12174, upload-time = "2024-11-01T14:51:32.767Z" },
+    { url = "https://files.pythonhosted.org/packages/d2/ce/fc699345a3cdfb4425b5dc1e446f1b49702ac55907a6a4d5d806f2512dae/starsessions-2.2.1-py3-none-any.whl", hash = "sha256:8097b33d70017b2d2331307f0ea923620b5bfb847118d2e5872805d0c1c16f83", size = 14621, upload-time = "2024-10-23T09:01:10.88Z" },
 ]
 
 [[package]]

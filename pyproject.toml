@@ -12,18 +12,18 @@ authors = [
 requires-python = ">=3.11"
 
 dependencies = [
-    "click>=8.3.3",
+    "click>=8.2.1",
     "fastapi>=0.110.0",
-    "starlette-sessions>=0.3.0",
-    "authlib>=1.7.2",
-    "starlette>=1.0.0",
+    "starsessions>=2.1.0",
+    "starlette>=0.47.2",
+    "authlib>=1.6.2",
     "httpx>=0.28.1",
     "itsdangerous>=2.2.0",
     "uvicorn[standard]>=0.29.0",
     "pyyaml>=6.0",
     "jinja2>=3.1.4",
-    "pydantic>=2.13.4",
-    "pydantic-settings>=2.13.1",
+    "pydantic>=2.11.7",
+    "pydantic-settings>=2.10.1",
 ]
 
 [dependency-groups]
@@ -32,10 +32,10 @@ dev = [
 ]
 
 [project.scripts]
-oidc-demo-app = "oidc_demo_app:main"
+oidc-demo-app = "oidc_demo_app.__main__:main"
 
 [build-system]
-requires = ["uv_build>=0.11.11,<0.12.0"]
+requires = ["uv_build>=0.9.0,<0.12.0"]
 build-backend = "uv_build"
 
 [tool.ruff]
