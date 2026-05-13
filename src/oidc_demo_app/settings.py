@@ -1,3 +1,5 @@
+import os
+
 from pydantic import BaseModel, Field
 from pydantic_settings import (
     BaseSettings,
@@ -20,13 +22,9 @@ class ProviderSettings(BaseModel):
 
 
 class AppSettings(BaseSettings):
-    base_url: str = "http://localhost:8000"
-
     providers: dict[str, ProviderSettings] = {}
 
-    model_config = SettingsConfigDict(
-        toml_file="config.toml",
-    )
+    model_config = SettingsConfigDict(toml_file=os.environ.get("OIDC_DEMO_APP_CONFIG", "config.toml"))
 
     @classmethod
     def settings_customise_sources(

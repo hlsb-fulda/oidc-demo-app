@@ -18,7 +18,7 @@
                 {% if providers %}
                     <div class="d-grid gap-2">
                         {% for (key, provider) in providers.items() %}
-                            <a href="/login/{{ key }}" class="btn provider-btn d-flex align-items-center gap-3">
+                            <a href="{{ url_for("login_redirect", provider=key) }}" class="btn provider-btn d-flex align-items-center gap-3">
                                 <span class="btn-icon">
                                     <i class="bi {{ provider.display_icon }}"></i>
                                 </span>

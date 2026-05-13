@@ -4,11 +4,15 @@ import logging
 import os
 from typing import Any
 
-from fastapi import FastAPI, HTTPException, Request
-from starlette.responses import HTMLResponse, RedirectResponse
+from starlette.applications import Starlette
+from starlette.exceptions import HTTPException
+from starlette.middleware import Middleware
+from starlette.requests import Request
+from starlette.responses import RedirectResponse
+from starlette.routing import Mount, Route
 from starlette.staticfiles import StaticFiles
 from starlette.templating import Jinja2Templates
-from starsessions import SessionMiddleware, InMemoryStore, SessionAutoloadMiddleware
+from starsessions import InMemoryStore, SessionAutoloadMiddleware, SessionMiddleware
 
 from oidc_demo_app.oidc import build_auth, unsafe_parse_token
 from oidc_demo_app.settings import settings
@@ -16,19 +20,12 @@ from oidc_demo_app.settings import settings
 logger = logging.getLogger(__name__)
 
 
-def create_app() -> FastAPI:
+def create_app() -> Starlette:
     oauth = build_auth()
-
-    app = FastAPI(
-        title="OIDC demo resource server",
-    )
-
-    app.add_middleware(SessionAutoloadMiddleware)
-    app.add_middleware(SessionMiddleware,
-                       store=InMemoryStore())
 
     templates = Jinja2Templates(directory=os.path.join(os.path.dirname(__file__), "templates"))
 
+    templates.env.globals["settings"] = settings
     templates.env.globals["TIMESTAMP_CLAIMS"] = {
         "iat",
         "exp",
@@ -93,23 +90,15 @@ def create_app() -> FastAPI:
     templates.env.filters["ts"] = filter_ts
     templates.env.filters["tojson"] = filter_tojson
 
-    app.mount(
-        "/static",
-        StaticFiles(directory=os.path.join(os.path.dirname(__file__), "static")),
-        name="static",
-    )
-
-    @app.get("/", response_class=HTMLResponse, name="index")
     async def index(request: Request):
         if request.session.get("token"):
-            return RedirectResponse(app.url_path_for("info"))
+            return RedirectResponse(request.url_for("info"))
         else:
-            return RedirectResponse(app.url_path_for("login"))
+            return RedirectResponse(request.url_for("login"))
 
-    @app.get("/login", response_class=HTMLResponse, name="login")
     async def login(request: Request):
         if request.session.get("token"):
-            return RedirectResponse(app.url_path_for("info"))
+            return RedirectResponse(request.url_for("info"))
 
         return templates.TemplateResponse(
             request,
@@ -120,8 +109,8 @@ def create_app() -> FastAPI:
             },
         )
 
-    @app.get("/login/{provider}", response_class=HTMLResponse, name="login_redirect")
-    async def login_redirect(request: Request, provider: str):
+    async def login_redirect(request: Request):
+        provider = request.path_params["provider"]
         if provider not in settings.providers:
             raise HTTPException(404, f"Unknown provider: {provider!r}")
 
@@ -129,26 +118,22 @@ def create_app() -> FastAPI:
 
         return await client.authorize_redirect(
             request,
-            f"{settings.base_url}{app.url_path_for('login_callback', provider=provider)}",
+            request.url_for("login_callback", provider=provider),
         )
 
-    @app.get("/login/{provider}/callback", response_class=HTMLResponse, name="login_callback")
-    async def login_callback(
-            request: Request,
-            provider: str,
-            error: str | None = None,
-            error_description: str | None = None,
-    ):
+    async def login_callback(request: Request):
+        provider = request.path_params["provider"]
         if provider not in settings.providers:
             raise HTTPException(404, f"Unknown provider: {provider!r}")
 
+        error = request.query_params.get("error")
         if error:
             return templates.TemplateResponse(
                 request,
                 "error.html.j2",
                 {
                     "request": request,
-                    "message": error_description or error,
+                    "message": request.query_params.get("error_description", error),
                 },
                 status_code=400,
             )
@@ -172,32 +157,30 @@ def create_app() -> FastAPI:
         request.session["provider"] = provider
         request.session["token"] = token
 
-        return RedirectResponse(app.url_path_for("info"), status_code=302)
+        return RedirectResponse(request.url_for("info"), status_code=302)
 
-    @app.get("/logout", response_class=HTMLResponse, name="logout")
     async def logout(request: Request):
         provider = request.session.get("provider")
         token = request.session.get("token")
         if not token:
-            return RedirectResponse(app.url_path_for("login"))
+            return RedirectResponse(request.url_for("login"))
 
         client = oauth.create_client(provider)
         url = await client.create_logout_url(
-            post_logout_redirect_uri=f"{settings.base_url}{app.url_path_for('index')}",
+            post_logout_redirect_uri=str(request.url_for("index")),
             client_id=settings.providers[provider].client_id,
             id_token_hint=token["id_token"],
         )
 
         request.session.clear()
 
-        return RedirectResponse(url["url"] if url else app.url_path_for("login"))
+        return RedirectResponse(url["url"] if url else request.url_for("index"))
 
-    @app.get("/info", response_class=HTMLResponse, name="info")
     async def info(request: Request):
         provider = request.session.get("provider")
         token = request.session.get("token")
         if not token:
-            return RedirectResponse(app.url_path_for("login"))
+            return RedirectResponse(request.url_for("login"))
 
         client = oauth.create_client(provider)
         discovery = await client.load_server_metadata()
@@ -206,7 +189,7 @@ def create_app() -> FastAPI:
             user = await client.parse_id_token(token, nonce=None)
         except Exception:
             del request.session["token"]
-            return RedirectResponse(app.url_path_for("login"))
+            return RedirectResponse(request.url_for("login"))
 
         id_token = unsafe_parse_token(token["id_token"])
         access_token = unsafe_parse_token(token["access_token"])
@@ -248,7 +231,26 @@ def create_app() -> FastAPI:
             },
         )
 
-    return app
+    routes = [
+        Mount("/static", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "static")), name="static"),
+        Mount(
+            "/",
+            routes=[
+                Route("/", endpoint=index, name="index"),
+                Route("/login", endpoint=login, name="login"),
+                Route("/login/{provider:str}", endpoint=login_redirect, name="login_redirect"),
+                Route("/login/{provider:str}/callback", endpoint=login_callback, name="login_callback"),
+                Route("/logout", endpoint=logout, name="logout"),
+                Route("/info", endpoint=info, name="info"),
+            ],
+            middleware=[
+                Middleware(SessionMiddleware, store=InMemoryStore()),
+                Middleware(SessionAutoloadMiddleware),
+            ],
+        ),
+    ]
+
+    return Starlette(routes=routes)
 
 
 app = create_app()

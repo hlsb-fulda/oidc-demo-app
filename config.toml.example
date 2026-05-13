@@ -1,5 +1,3 @@
-base_url = "http://localhost:8000"
-
 [providers.test]
 issuer = "https://login.example.internacl/realms/foo/"
 client_id = "oidc-demo-test"
