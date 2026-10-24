@@ -6,7 +6,7 @@ default:
       paths:
         - /root/.cache/.uv
 
-  image: ghcr.io/astral-sh/uv:0.9.5-python3.9-alpine@sha256:edd5324bbc5193943a129968921fbc49e2a635bb9447711f3ea9c44f5d15f877
+  image: ghcr.io/astral-sh/uv:0.13.4-python3.9-alpine@sha256:6b71818679bb7e84004255acea074a67e8e1ecbd0763c27cb72f6c01669d6e3e
 
   before_script:
     - python --version ; pip --version ; uv --version
